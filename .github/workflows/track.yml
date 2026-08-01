@@ -1,0 +1,46 @@
+name: Daglig flypris-tjek
+
+on:
+  schedule:
+    # Kører hver dag kl. 06:00 UTC (= 07:00 dansk vintertid / 08:00 sommertid)
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}  # gør at du også kan køre den manuelt fra Actions-fanen
+
+permissions:
+  contents: write  # så botten kan committe prishistorikken tilbage
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hent kode
+        uses: actions/checkout@v4
+
+      - name: Opsæt Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installér afhængigheder
+        run: pip install -r requirements.txt
+
+      - name: Tjek flypris og send Telegram
+        env:
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # Valgfrit: overskriv rute/grænse her hvis du vil
+          PRICE_ALERT_THRESHOLD: "6000"
+        run: python flight_tracker.py
+
+      - name: Gem prishistorik
+        run: |
+          git config user.name "flybilletbot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/prices.csv
+          if ! git diff --cached --quiet; then
+            git commit -m "Prisopdatering $(date -u +%Y-%m-%d)"
+            git push
+          else
+            echo "Ingen ændring i prisdata."
+          fi
