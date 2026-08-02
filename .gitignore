@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# Screenshottet sendes til Telegram og gemmes som artifact — ikke i repoet
+data/latest.png

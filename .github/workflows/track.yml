@@ -2,9 +2,9 @@ name: Daglig flypris-tjek
 
 on:
   schedule:
-    # Kører hver dag kl. 06:00 UTC (= 07:00 dansk vintertid / 08:00 sommertid)
+    # Hver dag kl. 06:00 UTC (= 07:00 dansk vintertid / 08:00 sommertid)
     - cron: "0 6 * * *"
-  workflow_dispatch: {}  # gør at du også kan køre den manuelt fra Actions-fanen
+  workflow_dispatch: {}  # så du også kan køre den manuelt fra Actions-fanen
 
 permissions:
   contents: write  # så botten kan committe prishistorikken tilbage
@@ -12,6 +12,16 @@ permissions:
 jobs:
   track:
     runs-on: ubuntu-latest
+    env:
+      # Lagt på job-niveau så vi kan bruge env.AIRCHINA_URL i if-betingelser
+      # (secrets-konteksten kan ikke bruges direkte i "if")
+      AIRCHINA_URL: ${{ secrets.AIRCHINA_URL }}
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+      PRICE_ALERT_THRESHOLD: "8000"
+      OUTBOUND_DATE: "2027-03-20"
+      RETURN_DATE: "2027-04-10"
     steps:
       - name: Hent kode
         uses: actions/checkout@v4
@@ -24,22 +34,40 @@ jobs:
       - name: Installér afhængigheder
         run: pip install -r requirements.txt
 
-      - name: Tjek flypris og send Telegram
-        env:
-          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          # Valgfrit: overskriv rute/grænse her hvis du vil
-          PRICE_ALERT_THRESHOLD: "6000"
+      # --- Kilde 1: Google Flights via SerpApi (stabil, kører altid) ---
+      - name: SerpApi-pris og Telegram
         run: python flight_tracker.py
 
+      # --- Kilde 2: Air Chinas egen priskalender ---
+      # Springes over indtil du har tilføjet AIRCHINA_URL som secret.
+      # continue-on-error: en fejl her må aldrig stoppe kilde 1.
+      - name: Installér browser til Air China-aflæsning
+        if: env.AIRCHINA_URL != ''
+        run: playwright install --with-deps chromium
+
+      - name: Air China-pris og Telegram
+        if: env.AIRCHINA_URL != ''
+        continue-on-error: true
+        run: python airchina_tracker.py
+
+      - name: Gem screenshot som artifact (til fejlsøgning)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priskalender
+          path: data/latest.png
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Gem prishistorik
+        if: always()
         run: |
           git config user.name "flybilletbot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/prices.csv
+          git add -A data
           if ! git diff --cached --quiet; then
             git commit -m "Prisopdatering $(date -u +%Y-%m-%d)"
+            git pull --rebase --autostash
             git push
           else
             echo "Ingen ændring i prisdata."
