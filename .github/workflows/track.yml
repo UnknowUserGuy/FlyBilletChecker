@@ -13,9 +13,6 @@ jobs:
   track:
     runs-on: ubuntu-latest
     env:
-      # Lagt på job-niveau så vi kan bruge env.AIRCHINA_URL i if-betingelser
-      # (secrets-konteksten kan ikke bruges direkte i "if")
-      AIRCHINA_URL: ${{ secrets.AIRCHINA_URL }}
       TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
@@ -38,15 +35,13 @@ jobs:
       - name: SerpApi-pris og Telegram
         run: python flight_tracker.py
 
-      # --- Kilde 2: Air Chinas egen priskalender ---
-      # Springes over indtil du har tilføjet AIRCHINA_URL som secret.
+      # --- Kilde 2: Air Chinas egen priskalender (airchina.dk) ---
+      # Udfylder deres søgeformular i en rigtig browser. Ingen secret nødvendig.
       # continue-on-error: en fejl her må aldrig stoppe kilde 1.
       - name: Installér browser til Air China-aflæsning
-        if: env.AIRCHINA_URL != ''
         run: playwright install --with-deps chromium
 
       - name: Air China-pris og Telegram
-        if: env.AIRCHINA_URL != ''
         continue-on-error: true
         run: python airchina_tracker.py
 
