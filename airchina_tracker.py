@@ -24,9 +24,10 @@ Flowet er verificeret mod det rigtige site:
 import csv
 import json
 import os
-import re
 import sys
+import time
 from datetime import datetime, timezone
+from html import escape
 from pathlib import Path
 
 import requests
@@ -55,7 +56,11 @@ CSV_FILE = DATA / "airchina_prices.csv"
 SHOT_FILE = DATA / "latest.png"
 BOOK_URL = "https://www.airchina.dk/"
 
-PAGE_TIMEOUT = int(os.getenv("PAGE_TIMEOUT", "60000"))
+PAGE_TIMEOUT = int(os.getenv("PAGE_TIMEOUT", "90000"))
+# Hvor længe vi venter på at priserne dukker op (sekunder). Søgningen tog ~13s
+# fra en almindelig forbindelse, men er markant langsommere fra en
+# datacenter-IP som GitHub Actions — derfor rundhåndet margin.
+PRICE_WAIT = int(os.getenv("PRICE_WAIT", "240"))
 
 
 def dk_date(iso):
@@ -188,28 +193,63 @@ def scrape():
 
         page.click("button.fssubmit", timeout=PAGE_TIMEOUT)
 
-        # Søgeknappen åbner en "Important notes"-mellemside;
-        # det er Continue-knappen i den, der sender søgningen.
-        try:
-            cont = page.locator("#flight-search-form-prompt button.submitForm").first
-            cont.wait_for(state="attached", timeout=8000)
-            cont.click(timeout=8000)
-        except Exception:
-            pass  # mellemsiden vises ikke altid
+        # Søgeknappen åbner en "Important notes"-mellemside; det er
+        # Continue-knappen i den, der reelt sender søgningen. Den dukker ikke
+        # altid op, så vi venter på at den bliver *synlig* frem for at klikke
+        # blindt (den ligger i DOM'en hele tiden).
+        deadline = time.time() + 25
+        while time.time() < deadline:
+            if "availability" in page.url:
+                break
+            try:
+                cont = page.locator("#flight-search-form-prompt button.submitForm").first
+                if cont.is_visible(timeout=1000):
+                    cont.click(timeout=8000)
+                    break
+            except Exception:
+                pass
+            page.wait_for_timeout(1000)
 
-        # Vent til matrixen er tegnet (celler har formen dd/mm/yyyy + beløb)
-        try:
-            page.wait_for_function(
-                "() => /\\d{2}\\/\\d{2}\\/\\d{4}[^\\d]{1,25}\\d{2}\\/\\d{2}\\/\\d{4}"
-                "[^\\d]{0,25}[A-Z]{3}\\s*[\\d.,]+[.,]\\d{2}/.test(document.body.innerText)",
-                timeout=PAGE_TIMEOUT,
-            )
-        except Exception:
-            pass  # screenshot tages alligevel, så fejlen kan ses
-        page.wait_for_timeout(2500)
+        # Vent på at matrixen er tegnet. Søgningen kan tage flere minutter fra
+        # en datacenter-IP, og undervejs vises en "vent venligst"-skærm — så vi
+        # poller i stedet for at sætte én lang timeout. page.evaluate kan kaste
+        # midt i en navigation, derfor try/except i løkken.
+        probe = (
+            "() => /\\d{2}\\/\\d{2}\\/\\d{4}[^\\d]{1,25}\\d{2}\\/\\d{2}\\/\\d{4}"
+            "[^\\d]{0,25}[A-Z]{3}\\s*[\\d.,]+[.,]\\d{2}/.test(document.body.innerText)"
+        )
+        found = False
+        deadline = time.time() + PRICE_WAIT
+        while time.time() < deadline:
+            try:
+                if page.evaluate(probe):
+                    found = True
+                    break
+            except Exception:
+                pass
+            page.wait_for_timeout(2000)
 
+        page.wait_for_timeout(2000)  # lad de sidste celler tegne færdig
         shot()
-        result = page.evaluate(EXTRACT_JS)
+
+        try:
+            result = page.evaluate(EXTRACT_JS)
+        except Exception as exc:
+            result = {"cells": [], "error": f"aflæsning fejlede: {exc}"}
+
+        if not result.get("cells") and not found:
+            # Gør fejlbeskeden brugbar: hvor nåede vi hen, og hvad stod der?
+            try:
+                snippet = page.evaluate(
+                    "() => document.body.innerText.replace(/\\s+/g,' ').slice(0,200)"
+                )
+            except Exception:
+                snippet = "(kunne ikke læse sidetekst)"
+            result["error"] = (
+                f"timeout efter {PRICE_WAIT}s — siden nåede aldrig at vise priser. "
+                f"URL: {page.url} | Titel: {page.title()} | Tekst: {snippet}"
+            )
+
         browser.close()
         return result
 
@@ -277,7 +317,7 @@ def build_message(mine, prev, cells, diag):
             head
             + "⚠️ Kunne ikke aflæse prisen for dine datoer i dag.\n"
             + f"<i>{len(cells)} celler fundet.</i>\n"
-            + (f"<i>{diag['error']}</i>\n" if diag.get("error") else "")
+            + (f"<i>{escape(str(diag['error'])[:400])}</i>\n" if diag.get("error") else "")
             + "Se screenshottet — måske er siden ændret."
         )
 
@@ -309,10 +349,12 @@ def build_message(mine, prev, cells, diag):
 def send_telegram(text, photo=None):
     api = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
     if photo and Path(photo).exists():
+        # Telegram tillader højst 1024 tegn i en billedtekst
+        caption = text if len(text) <= 1024 else text[:1015] + "…"
         with open(photo, "rb") as fh:
             r = requests.post(
                 f"{api}/sendPhoto",
-                data={"chat_id": TELEGRAM_CHAT_ID, "caption": text, "parse_mode": "HTML"},
+                data={"chat_id": TELEGRAM_CHAT_ID, "caption": caption, "parse_mode": "HTML"},
                 files={"photo": fh}, timeout=60,
             )
         if r.ok:
@@ -337,6 +379,11 @@ def main():
         sys.exit(1)
 
     diag = scrape()
+    if not diag.get("cells"):
+        # Søgningen fejler af og til på et langsomt svar — ét forsøg mere
+        print("Ingen priser i første forsøg — prøver igen...", file=sys.stderr)
+        diag = scrape()
+
     cells = diag.get("cells") or []
     mine = pick(cells, OUTBOUND_DATE, RETURN_DATE)
 
