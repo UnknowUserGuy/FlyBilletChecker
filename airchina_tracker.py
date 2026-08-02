@@ -146,6 +146,39 @@ EXTRACT_JS = r"""
 """
 
 
+def dismiss_cookies(page):
+    """Luk cookie-modalen og fravælg alt ikke-nødvendigt.
+
+    Modalen optræder både på forsiden og igen på resultatsiden (CAOnline),
+    hvor den ellers lægger sig hen over pris-matrixen i screenshottet.
+    Vi vælger REJECT ALL — det mest privatlivsvenlige valg — og gemmer.
+    """
+    try:
+        popin = page.locator("#cookie-notice-popin").first
+        if not popin.is_visible(timeout=1500):
+            return False
+    except Exception:
+        return False
+
+    for sel in ("#denyCookieButton", "#saveSelection"):
+        try:
+            el = page.locator(sel).first
+            if el.is_visible(timeout=1500):
+                el.click(timeout=4000)
+                page.wait_for_timeout(500)
+        except Exception:
+            pass
+
+    # Sidste udvej: luk med X, så den i det mindste ikke dækker matrixen
+    try:
+        if popin.is_visible(timeout=1000):
+            page.locator("span.cnpclose").first.click(timeout=3000)
+            page.wait_for_timeout(400)
+    except Exception:
+        pass
+    return True
+
+
 def scrape():
     """Kør søgningen og returnér matrix-celler + diagnostik."""
     with sync_playwright() as pw:
@@ -170,16 +203,7 @@ def scrape():
 
         page.goto(START_URL, timeout=PAGE_TIMEOUT, wait_until="domcontentloaded")
 
-        # Cookie-banner: afvis alt ikke-nødvendigt (mest privatlivsvenlige valg)
-        for sel in ("#denyCookieButton", "#cookie-notice-popin .closeBtn"):
-            try:
-                el = page.locator(sel).first
-                if el.is_visible(timeout=2500):
-                    el.click()
-                    page.wait_for_timeout(600)
-                    break
-            except Exception:
-                continue
+        dismiss_cookies(page)
 
         filled = page.evaluate(FILL_JS, {
             "origin": ORIGIN, "originLabel": ORIGIN_LABEL,
@@ -230,6 +254,10 @@ def scrape():
             page.wait_for_timeout(2000)
 
         page.wait_for_timeout(2000)  # lad de sidste celler tegne færdig
+
+        # Modalen dukker op igen på resultatsiden — væk med den før screenshottet
+        dismiss_cookies(page)
+        page.wait_for_timeout(500)
         shot()
 
         try:
