@@ -1,0 +1,345 @@
+[
+ {
+  "out": "17/03/2027",
+  "ret": "07/04/2027",
+  "currency": "DKK",
+  "price": 7699,
+  "was": null
+ },
+ {
+  "out": "17/03/2027",
+  "ret": "08/04/2027",
+  "currency": "DKK",
+  "price": 7245,
+  "was": null
+ },
+ {
+  "out": "17/03/2027",
+  "ret": "09/04/2027",
+  "currency": "DKK",
+  "price": 6895,
+  "was": null
+ },
+ {
+  "out": "17/03/2027",
+  "ret": "10/04/2027",
+  "currency": "DKK",
+  "price": 7245,
+  "was": null
+ },
+ {
+  "out": "17/03/2027",
+  "ret": "11/04/2027",
+  "currency": "DKK",
+  "price": 7699,
+  "was": null
+ },
+ {
+  "out": "17/03/2027",
+  "ret": "12/04/2027",
+  "currency": "DKK",
+  "price": 7695,
+  "was": null
+ },
+ {
+  "out": "17/03/2027",
+  "ret": "13/04/2027",
+  "currency": "DKK",
+  "price": 7695,
+  "was": null
+ },
+ {
+  "out": "18/03/2027",
+  "ret": "07/04/2027",
+  "currency": "DKK",
+  "price": 7331,
+  "was": null
+ },
+ {
+  "out": "18/03/2027",
+  "ret": "08/04/2027",
+  "currency": "DKK",
+  "price": 7245,
+  "was": null
+ },
+ {
+  "out": "18/03/2027",
+  "ret": "09/04/2027",
+  "currency": "DKK",
+  "price": 6895,
+  "was": null
+ },
+ {
+  "out": "18/03/2027",
+  "ret": "10/04/2027",
+  "currency": "DKK",
+  "price": 7245,
+  "was": null
+ },
+ {
+  "out": "18/03/2027",
+  "ret": "11/04/2027",
+  "currency": "DKK",
+  "price": 7331,
+  "was": null
+ },
+ {
+  "out": "18/03/2027",
+  "ret": "12/04/2027",
+  "currency": "DKK",
+  "price": 7331,
+  "was": null
+ },
+ {
+  "out": "18/03/2027",
+  "ret": "13/04/2027",
+  "currency": "DKK",
+  "price": 7331,
+  "was": null
+ },
+ {
+  "out": "19/03/2027",
+  "ret": "07/04/2027",
+  "currency": "DKK",
+  "price": 8081,
+  "was": null
+ },
+ {
+  "out": "19/03/2027",
+  "ret": "08/04/2027",
+  "currency": "DKK",
+  "price": 7928,
+  "was": null
+ },
+ {
+  "out": "19/03/2027",
+  "ret": "09/04/2027",
+  "currency": "DKK",
+  "price": 7578,
+  "was": null
+ },
+ {
+  "out": "19/03/2027",
+  "ret": "10/04/2027",
+  "currency": "DKK",
+  "price": 7928,
+  "was": null
+ },
+ {
+  "out": "19/03/2027",
+  "ret": "11/04/2027",
+  "currency": "DKK",
+  "price": 8081,
+  "was": null
+ },
+ {
+  "out": "19/03/2027",
+  "ret": "12/04/2027",
+  "currency": "DKK",
+  "price": 8081,
+  "was": null
+ },
+ {
+  "out": "19/03/2027",
+  "ret": "13/04/2027",
+  "currency": "DKK",
+  "price": 8081,
+  "was": null
+ },
+ {
+  "out": "20/03/2027",
+  "ret": "07/04/2027",
+  "currency": "DKK",
+  "price": 8209,
+  "was": null
+ },
+ {
+  "out": "20/03/2027",
+  "ret": "08/04/2027",
+  "currency": "DKK",
+  "price": 8232,
+  "was": 8353
+ },
+ {
+  "out": "20/03/2027",
+  "ret": "09/04/2027",
+  "currency": "DKK",
+  "price": 7893,
+  "was": 8003
+ },
+ {
+  "out": "20/03/2027",
+  "ret": "10/04/2027",
+  "currency": "DKK",
+  "price": 8232,
+  "was": 8353
+ },
+ {
+  "out": "20/03/2027",
+  "ret": "11/04/2027",
+  "currency": "DKK",
+  "price": 8209,
+  "was": null
+ },
+ {
+  "out": "20/03/2027",
+  "ret": "12/04/2027",
+  "currency": "DKK",
+  "price": 8209,
+  "was": null
+ },
+ {
+  "out": "20/03/2027",
+  "ret": "13/04/2027",
+  "currency": "DKK",
+  "price": 8209,
+  "was": null
+ },
+ {
+  "out": "21/03/2027",
+  "ret": "07/04/2027",
+  "currency": "DKK",
+  "price": 9959,
+  "was": null
+ },
+ {
+  "out": "21/03/2027",
+  "ret": "08/04/2027",
+  "currency": "DKK",
+  "price": 9487,
+  "was": 9660
+ },
+ {
+  "out": "21/03/2027",
+  "ret": "09/04/2027",
+  "currency": "DKK",
+  "price": 9148,
+  "was": 9310
+ },
+ {
+  "out": "21/03/2027",
+  "ret": "10/04/2027",
+  "currency": "DKK",
+  "price": 9487,
+  "was": 9660
+ },
+ {
+  "out": "21/03/2027",
+  "ret": "11/04/2027",
+  "currency": "DKK",
+  "price": 9959,
+  "was": null
+ },
+ {
+  "out": "21/03/2027",
+  "ret": "12/04/2027",
+  "currency": "DKK",
+  "price": 9923,
+  "was": 10110
+ },
+ {
+  "out": "21/03/2027",
+  "ret": "13/04/2027",
+  "currency": "DKK",
+  "price": 9923,
+  "was": 10110
+ },
+ {
+  "out": "22/03/2027",
+  "ret": "07/04/2027",
+  "currency": "DKK",
+  "price": 8660,
+  "was": null
+ },
+ {
+  "out": "22/03/2027",
+  "ret": "08/04/2027",
+  "currency": "DKK",
+  "price": 8206,
+  "was": null
+ },
+ {
+  "out": "22/03/2027",
+  "ret": "09/04/2027",
+  "currency": "DKK",
+  "price": 7856,
+  "was": null
+ },
+ {
+  "out": "22/03/2027",
+  "ret": "10/04/2027",
+  "currency": "DKK",
+  "price": 8206,
+  "was": null
+ },
+ {
+  "out": "22/03/2027",
+  "ret": "11/04/2027",
+  "currency": "DKK",
+  "price": 8660,
+  "was": null
+ },
+ {
+  "out": "22/03/2027",
+  "ret": "12/04/2027",
+  "currency": "DKK",
+  "price": 8656,
+  "was": null
+ },
+ {
+  "out": "22/03/2027",
+  "ret": "13/04/2027",
+  "currency": "DKK",
+  "price": 8656,
+  "was": null
+ },
+ {
+  "out": "23/03/2027",
+  "ret": "07/04/2027",
+  "currency": "DKK",
+  "price": 8064,
+  "was": null
+ },
+ {
+  "out": "23/03/2027",
+  "ret": "08/04/2027",
+  "currency": "DKK",
+  "price": 7489,
+  "was": 7610
+ },
+ {
+  "out": "23/03/2027",
+  "ret": "09/04/2027",
+  "currency": "DKK",
+  "price": 7150,
+  "was": 7260
+ },
+ {
+  "out": "23/03/2027",
+  "ret": "10/04/2027",
+  "currency": "DKK",
+  "price": 7489,
+  "was": 7610
+ },
+ {
+  "out": "23/03/2027",
+  "ret": "11/04/2027",
+  "currency": "DKK",
+  "price": 8064,
+  "was": null
+ },
+ {
+  "out": "23/03/2027",
+  "ret": "12/04/2027",
+  "currency": "DKK",
+  "price": 7926,
+  "was": 8060
+ },
+ {
+  "out": "23/03/2027",
+  "ret": "13/04/2027",
+  "currency": "DKK",
+  "price": 7926,
+  "was": 8060
+ }
+]
