@@ -26,6 +26,7 @@ import json
 import os
 import sys
 import time
+import traceback
 from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
@@ -427,4 +428,21 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        # En crash må aldrig blive til tavshed. Uden det her fejler jobbet
+        # bare i Actions, og man opdager først at botten er død, når man
+        # undrer sig over ikke at have hørt fra den i flere dage.
+        traceback.print_exc()
+        try:
+            if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
+                send_telegram(
+                    "🛑 <b>Air China-botten fejlede</b>\n\n"
+                    f"<i>{escape(type(exc).__name__)}: "
+                    f"{escape(str(exc)[:600])}</i>\n\n"
+                    "SerpApi-kilden kører videre som normalt."
+                )
+        except Exception:
+            print("kunne heller ikke sende fejlbesked til Telegram", file=sys.stderr)
+        sys.exit(1)

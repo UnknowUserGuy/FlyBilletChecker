@@ -38,10 +38,20 @@ jobs:
       # --- Kilde 2: Air Chinas egen priskalender (airchina.dk) ---
       # Udfylder deres søgeformular i en rigtig browser. Ingen secret nødvendig.
       # continue-on-error: en fejl her må aldrig stoppe kilde 1.
+      # continue-on-error: fejler installationen, må den ikke vælte jobbet og
+      # dermed forhindre selve aflæsningen i overhovedet at køre.
+      # --with-deps kræver sudo og er skrøbelig; falder tilbage til uden.
       - name: Installér browser til Air China-aflæsning
-        run: playwright install --with-deps chromium
+        continue-on-error: true
+        run: |
+          python -m playwright --version
+          python -m playwright install --with-deps chromium \
+            || python -m playwright install chromium
 
+      # if: always() — kører også selvom installationen fejlede, så scriptet
+      # selv kan rapportere hvad der gik galt i stedet for at tie stille.
       - name: Air China-pris og Telegram
+        if: always()
         continue-on-error: true
         run: python airchina_tracker.py
 

@@ -1,2 +1,7 @@
 requests>=2.31.0
-playwright>=1.44.0
+
+# Øvre grænse, så en ny hovedversion ikke lander uanmeldt i en natlig kørsel.
+# Workflowet logger den installerede version ("python -m playwright --version"),
+# så vi kan pinne præcist, hvis en bestemt udgivelse viser sig at være skyld
+# i en fejl.
+playwright>=1.44,<2.0
