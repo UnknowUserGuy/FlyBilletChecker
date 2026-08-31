@@ -35,19 +35,27 @@ jobs:
       - name: SerpApi-pris og Telegram
         run: python flight_tracker.py
 
-      # --- Kilde 2: airchina.dk — SLÅET FRA i skyen ---
+      # --- Kilde 2: airchina.dk — KAN IKKE køre i skyen ---
       #
-      # Air China kører Imperva/Distil bot-beskyttelse. Verificeret ved at
-      # sende søgningen med curl: svaret er deres blokeringsside
-      # ("Pardon Our Interruption", med Imperva/Incapsula i kildekoden).
+      # MÅLT, ikke gættet. Kør diagnose.yml for at gentage målingen.
+      # Resultat fra en GitHub-runner:
       #
-      # Fra en almindelig internetforbindelse i en ægte browser slipper
-      # aflæsningen igennem, men GitHub Actions kører på datacenter-IP'er,
-      # som er dem beskyttelsen rammer hårdest. Kilden kørte i tre uger og
-      # blev derefter lukket ude — det var årsagen til at den stoppede 24/8,
-      # ikke en fejl i koden.
+      #   1. GET airchina.dk (almindelig klient) ....... BLOKERET
+      #   2. POST søgningen (almindelig klient) ........ BLOKERET
+      #   3. Playwright starter Chromium ............... OK
+      #   4. Samme side i en ÆGTE browser .............. BLOKERET
       #
-      # Vi forsøger IKKE at omgå beskyttelsen. airchina_tracker.py ligger
+      # At selv trin 1 blokeres, og at trin 4 fejler selvom browseren
+      # kører fint (trin 3), viser at det er IP-adressen der er markeret —
+      # ikke klienten der genkendes. Air Chinas Imperva/Distil-beskyttelse
+      # afviser GitHubs adresseintervaller.
+      #
+      # Samme kode kørte igennem uden problemer fra en almindelig dansk
+      # forbindelse samme dag (49 celler aflæst), så koden fejler ikke.
+      # Kilden kørte i tre uger og blev derefter lukket ude — det var det,
+      # der skete 24/8.
+      #
+      # Beskyttelsen forsøges IKKE omgået. airchina_tracker.py ligger
       # stadig i repoet og virker, når den køres lokalt fra egen maskine.
 
       - name: Gem prishistorik
