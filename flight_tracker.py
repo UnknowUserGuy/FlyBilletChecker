@@ -12,7 +12,9 @@ GitHub Actions.
 import csv
 import os
 import sys
+import traceback
 from datetime import datetime, timezone
+from html import escape
 from pathlib import Path
 
 import requests
@@ -200,4 +202,24 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        # Dette er nu den eneste priskilde, så en crash må aldrig blive til
+        # tavshed. Uden det her fejler jobbet bare i Actions, og man opdager
+        # først at botten er død, når man undrer sig over ikke at have hørt
+        # fra den i flere dage. Typiske årsager: SerpApi-kvoten er brugt op,
+        # nøglen er udløbet, eller deres API er nede.
+        traceback.print_exc()
+        try:
+            if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
+                send_telegram(
+                    "🛑 <b>Flybilletbotten fejlede</b>\n\n"
+                    f"<i>{escape(type(exc).__name__)}: "
+                    f"{escape(str(exc)[:600])}</i>\n\n"
+                    "Tjek om SerpApi-kvoten er brugt op "
+                    "(gratis niveau: 100 søgninger/md)."
+                )
+        except Exception:
+            print("kunne heller ikke sende fejlbesked til Telegram", file=sys.stderr)
+        sys.exit(1)

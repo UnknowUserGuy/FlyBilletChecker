@@ -35,28 +35,18 @@ jobs:
       - name: SerpApi-pris og Telegram
         run: python flight_tracker.py
 
-      # --- Kilde 2: airchina.dk — KAN IKKE køre i skyen ---
+      # Tidligere fandtes her en kilde 2, der aflæste airchina.dk direkte.
+      # Den er fjernet: Air Chinas Imperva/Distil-beskyttelse afviser
+      # GitHubs IP-adresser. Målt fra en runner — selv et almindeligt kald
+      # til forsiden blev blokeret, og en ægte browser ligeså, selvom
+      # browseren startede fint. Det er altså adressen der er markeret,
+      # ikke klienten der genkendes.
       #
-      # MÅLT, ikke gættet. Kør diagnose.yml for at gentage målingen.
-      # Resultat fra en GitHub-runner:
-      #
-      #   1. GET airchina.dk (almindelig klient) ....... BLOKERET
-      #   2. POST søgningen (almindelig klient) ........ BLOKERET
-      #   3. Playwright starter Chromium ............... OK
-      #   4. Samme side i en ÆGTE browser .............. BLOKERET
-      #
-      # At selv trin 1 blokeres, og at trin 4 fejler selvom browseren
-      # kører fint (trin 3), viser at det er IP-adressen der er markeret —
-      # ikke klienten der genkendes. Air Chinas Imperva/Distil-beskyttelse
-      # afviser GitHubs adresseintervaller.
-      #
-      # Samme kode kørte igennem uden problemer fra en almindelig dansk
-      # forbindelse samme dag (49 celler aflæst), så koden fejler ikke.
-      # Kilden kørte i tre uger og blev derefter lukket ude — det var det,
-      # der skete 24/8.
-      #
-      # Beskyttelsen forsøges IKKE omgået. airchina_tracker.py ligger
-      # stadig i repoet og virker, når den køres lokalt fra egen maskine.
+      # Koden virkede (49 celler aflæst fra en dansk forbindelse samme
+      # dag), men der er ingen lovlig vej til at køre den i skyen, så den
+      # blev fjernet frem for at fejle hver morgen. Historikken ligger
+      # stadig i data/airchina_prices.csv og data/matrix/.
+      # Se git-historikken (df2191d) for hele måleresultatet.
 
       - name: Gem prishistorik
         if: always()
