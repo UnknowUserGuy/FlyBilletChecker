@@ -35,34 +35,20 @@ jobs:
       - name: SerpApi-pris og Telegram
         run: python flight_tracker.py
 
-      # --- Kilde 2: Air Chinas egen priskalender (airchina.dk) ---
-      # Udfylder deres søgeformular i en rigtig browser. Ingen secret nødvendig.
-      # continue-on-error: en fejl her må aldrig stoppe kilde 1.
-      # continue-on-error: fejler installationen, må den ikke vælte jobbet og
-      # dermed forhindre selve aflæsningen i overhovedet at køre.
-      # --with-deps kræver sudo og er skrøbelig; falder tilbage til uden.
-      - name: Installér browser til Air China-aflæsning
-        continue-on-error: true
-        run: |
-          python -m playwright --version
-          python -m playwright install --with-deps chromium \
-            || python -m playwright install chromium
-
-      # if: always() — kører også selvom installationen fejlede, så scriptet
-      # selv kan rapportere hvad der gik galt i stedet for at tie stille.
-      - name: Air China-pris og Telegram
-        if: always()
-        continue-on-error: true
-        run: python airchina_tracker.py
-
-      - name: Gem screenshot som artifact (til fejlsøgning)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: priskalender
-          path: data/latest.png
-          if-no-files-found: ignore
-          retention-days: 14
+      # --- Kilde 2: airchina.dk — SLÅET FRA i skyen ---
+      #
+      # Air China kører Imperva/Distil bot-beskyttelse. Verificeret ved at
+      # sende søgningen med curl: svaret er deres blokeringsside
+      # ("Pardon Our Interruption", med Imperva/Incapsula i kildekoden).
+      #
+      # Fra en almindelig internetforbindelse i en ægte browser slipper
+      # aflæsningen igennem, men GitHub Actions kører på datacenter-IP'er,
+      # som er dem beskyttelsen rammer hårdest. Kilden kørte i tre uger og
+      # blev derefter lukket ude — det var årsagen til at den stoppede 24/8,
+      # ikke en fejl i koden.
+      #
+      # Vi forsøger IKKE at omgå beskyttelsen. airchina_tracker.py ligger
+      # stadig i repoet og virker, når den køres lokalt fra egen maskine.
 
       - name: Gem prishistorik
         if: always()

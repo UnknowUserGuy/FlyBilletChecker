@@ -1,0 +1,12 @@
+# Til at køre airchina_tracker.py lokalt på egen maskine.
+# Air Chinas bot-beskyttelse afviser datacenter-IP'er, så den kilde kan ikke
+# køre i GitHub Actions — men virker fint hjemmefra i en rigtig browser.
+#
+#   pip install -r requirements-local.txt
+#   python -m playwright install chromium
+#   python airchina_tracker.py
+
+-r requirements.txt
+
+# Øvre grænse, så en ny hovedversion ikke lander uanmeldt.
+playwright>=1.44,<2.0
